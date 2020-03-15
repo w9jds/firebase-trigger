@@ -8,10 +8,12 @@ const isRequired = {
 
 const initFirebase = () => {
   try {
-    const config = core.getInput('firebaseConfig', isRequired);
-    const secrets = JSON.parse(config);
+    const credentials = core.getInput('credentials', isRequired);
 
-    firebase = admin.initializeApp(secrets);
+    firebase = admin.initializeApp({
+      credential: JSON.parse(credentials),
+      databaseURL: core.getInput('databaseUrl'),
+    });
   } catch {
     core.setFailed('Failed to initialize connection to firebase application');
     process.exit(core.ExitCode.Failure);

@@ -2,8 +2,12 @@ name: Firebase Trigger
 description: Update a field in your firebase database
 author: Jeremy Shore
 inputs:
-  firebaseConfig:
-    description: Admin config json for connecting to application
+  credentials:
+    description: Admin credentials json for connecting to application
+    required: true
+  databaseUrl:
+    description: URL to the database you want to connect to
+    required: true
   databaseType:
     description: Either `realtime` or `firestore`
     default: realtime
