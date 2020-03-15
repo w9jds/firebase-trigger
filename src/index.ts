@@ -1,11 +1,10 @@
 import * as core from '@actions/core';
 import * as admin from 'firebase-admin';
 
+let firebase: admin.app.App;
 const isRequired = {
   required: true,
 };
-
-let firebase: admin.app.App;
 
 const initFirebase = () => {
   try {
@@ -32,6 +31,10 @@ const getDatabaseType = () => {
   return type;
 }
 
+const onError = (error) => {
+  core.setFailed(error);
+  process.exit(core.ExitCode.Failure);
+}
 
 const processAction = async () => {
   initFirebase();
@@ -41,19 +44,25 @@ const processAction = async () => {
   const value = core.getInput('value', isRequired);
 
   if (databaseType === 'realtime') {
-    updateRealtimeDatabase(path, value);
+    await firebase.database()
+      .ref(path)
+      .set(value, onError);
   }
 
   if (databaseType === 'firestore') {
+    const document = core.getInput('doc', isRequired);
+    const contents = JSON.parse(value);
 
+    await firebase.firestore()
+      .collection(path)
+      .doc(document)
+      .set(contents);
   }
 
+  process.exit(core.ExitCode.Success);
 }
 
 processAction().catch(error => {
   core.setFailed(error);
   process.exit(core.ExitCode.Failure);
 });
-
-
-
