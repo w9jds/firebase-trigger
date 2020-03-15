@@ -1,0 +1,19 @@
+name: 'Firebase Trigger'
+description: 'Update a field in your firebase database'
+author: 'Jeremy Shore'
+inputs:
+  databaseType:
+    description: 'Either `realtime` or `firestore`'
+    default: 'realtime'
+  path:
+    description: 'Path to field you would like to update'
+    required: true
+  field:
+    description: 'Field to be updated'
+    require: true
+  value:
+    description: 'Value to be set in the field'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
