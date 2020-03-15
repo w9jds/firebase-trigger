@@ -31,9 +31,24 @@ const getDatabaseType = () => {
   return type;
 }
 
-const onError = (error) => {
-  core.setFailed(error);
-  process.exit(core.ExitCode.Failure);
+const getValue = () => {
+  const value = core.getInput('value');
+
+  if (!value) {
+    return Date.now();
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    const num = Number(value);
+
+    if (isNaN(num)) {
+      return value;
+    }
+
+    return num;
+  }
 }
 
 const processAction = async () => {
@@ -41,12 +56,20 @@ const processAction = async () => {
 
   const databaseType = getDatabaseType();
   const path: string = core.getInput('path', isRequired);
-  const value = core.getInput('value', isRequired);
+  const value = getValue();
 
   if (databaseType === 'realtime') {
     await firebase.database()
       .ref(path)
-      .set(value, onError);
+      .set(value,
+        error => {
+          if (error instanceof Error) {
+            core.setFailed(error.message);
+          }
+
+          process.exit(core.ExitCode.Failure);
+        }
+      );
   }
 
   if (databaseType === 'firestore') {

@@ -2,18 +2,19 @@ name: 'Firebase Trigger'
 description: 'Update a field in your firebase database'
 author: 'Jeremy Shore'
 inputs:
+  firebaseConfig:
+    description: 'Admin config json for connecting to application'
   databaseType:
     description: 'Either `realtime` or `firestore`'
     default: 'realtime'
   path:
-    description: 'Path to field you would like to update'
+    description: 'Path to what you want to set in your database'
     required: true
-  field:
-    description: 'Field to be updated'
-    require: true
+  doc:
+    description: 'Document to set for firestore'
   value:
-    description: 'Value to be set in the field'
-    required: true
+    description: 'Value to be set'
+    default: 'Current Date Timestamp'
 runs:
   using: 'node12'
   main: 'dist/index.js'
