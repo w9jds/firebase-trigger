@@ -56,10 +56,7 @@ const updateRealtimeDatabase = (path: string, value: any) => {
     .ref(path)
     .set(value,
       error => {
-        if (error instanceof Error) {
-          core.setFailed(error.message);
-        }
-
+        core.setFailed(JSON.stringify(error));
         process.exit(core.ExitCode.Failure);
       }
     ).then(
@@ -67,7 +64,7 @@ const updateRealtimeDatabase = (path: string, value: any) => {
         process.exit(core.ExitCode.Success);
       },
       (reason) => {
-        core.setFailed(reason);
+        core.setFailed(JSON.stringify(reason));
         process.exit(core.ExitCode.Failure);
       }
     );
@@ -85,7 +82,7 @@ const updateFirestoreDatabase = (path: string, value: Record<string, any>) => {
         process.exit(core.ExitCode.Success);
       },
       (reason) => {
-        core.setFailed(reason);
+        core.setFailed(JSON.stringify(reason));
         process.exit(core.ExitCode.Failure);
       }
     );
@@ -107,7 +104,7 @@ const processAction = () => {
       updateFirestoreDatabase(path, value);
     }
   } catch(error) {
-    core.setFailed(error);
+    core.setFailed(JSON.stringify(error));
     process.exit(core.ExitCode.Failure);
   }
 }
