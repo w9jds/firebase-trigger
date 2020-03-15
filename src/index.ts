@@ -8,14 +8,15 @@ const isRequired = {
 
 const initFirebase = () => {
   try {
+    core.info("Initialized Firebase Admin Connection");
     const credentials = core.getInput('credentials', isRequired);
 
     firebase = admin.initializeApp({
-      credential: JSON.parse(credentials),
+      credential: admin.credential.cert(JSON.parse(credentials) as admin.ServiceAccount),
       databaseURL: core.getInput('databaseUrl'),
     });
-  } catch {
-    core.setFailed('Failed to initialize connection to firebase application');
+  } catch(error) {
+    core.setFailed(JSON.stringify(error));
     process.exit(core.ExitCode.Failure);
   }
 }
@@ -34,6 +35,7 @@ const getDatabaseType = () => {
 }
 
 const getValue = () => {
+  core.info("Trying to parse expected value");
   const value = core.getInput('value');
 
   if (!value) {
@@ -54,6 +56,7 @@ const getValue = () => {
 }
 
 const updateRealtimeDatabase = (path: string, value: any) => {
+  core.info(`Updating Realtime Database at ${path}`);
   firebase.database()
     .ref(path)
     .set(value,
@@ -75,6 +78,7 @@ const updateRealtimeDatabase = (path: string, value: any) => {
 const updateFirestoreDatabase = (path: string, value: Record<string, any>) => {
   const document = core.getInput('doc', isRequired);
 
+  core.info(`Updating Firestore Database at collection: ${path} document: ${document}`)
   firebase.firestore()
     .collection(path)
     .doc(document)
