@@ -2,7 +2,7 @@
   "name": "firebase-trigger",
   "version": "1.0.0",
   "description": "Update firebase data when your build completes",
-  "main": "lib/main.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
     "pack": "ncc build",
