@@ -18,6 +18,9 @@ inputs:
     description: Document to set for firestore
   value:
     description: Value to be set
+branding:
+  icon: 'activity'
+  color: 'gray-dark'
 runs:
   using: node12
   main: dist/index.js
