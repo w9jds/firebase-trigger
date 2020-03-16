@@ -2,6 +2,8 @@ import * as core from '@actions/core';
 import * as admin from 'firebase-admin';
 
 let firebase: admin.app.App;
+
+const isDebug: boolean = core.isDebug();
 const isRequired = {
   required: true,
 };
@@ -62,12 +64,14 @@ const updateRealtimeDatabase = async (path: string, value: any) => {
     .ref(path)
     .set(value,
       error => {
-        core.setFailed(JSON.stringify(error));
-        process.exit(core.ExitCode.Failure);
+        if (error instanceof Error) {
+          core.setFailed(JSON.stringify(error));
+          process.exit(core.ExitCode.Failure);
+        }
+
+        process.exit(core.ExitCode.Success);
       }
     );
-
-  process.exit(core.ExitCode.Success);
 }
 
 const updateFirestoreDatabase = (path: string, value: Record<string, any>) => {
