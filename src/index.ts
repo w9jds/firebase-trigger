@@ -55,24 +55,19 @@ const getValue = () => {
   }
 }
 
-const updateRealtimeDatabase = (path: string, value: any) => {
+const updateRealtimeDatabase = async (path: string, value: any) => {
   core.info(`Updating Realtime Database at ${path}`);
-  firebase.database()
+
+  await firebase.database()
     .ref(path)
     .set(value,
       error => {
         core.setFailed(JSON.stringify(error));
         process.exit(core.ExitCode.Failure);
       }
-    ).then(
-      () => {
-        process.exit(core.ExitCode.Success);
-      },
-      (reason) => {
-        core.setFailed(JSON.stringify(reason));
-        process.exit(core.ExitCode.Failure);
-      }
     );
+
+  process.exit(core.ExitCode.Success);
 }
 
 const updateFirestoreDatabase = (path: string, value: Record<string, any>) => {
