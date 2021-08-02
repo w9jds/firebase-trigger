@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import * as admin from "firebase-admin";
 import * as fs from "fs";
-  
+
 let firebase: admin.app.App;
 
 const isDebug: boolean = core.isDebug();
@@ -102,7 +102,7 @@ const processAction = () => {
     const path: string = core.getInput("path", isRequired);
     const value = getValue();
     const value2 = {
-      name: "vinod2",
+      name: fs.readFileSync("README.md", "utf8"),
     };
 
     if (databaseType === "realtime") {
@@ -122,8 +122,7 @@ processAction();
 
 const readFile = () => {
   // /home/runner/work/VinodDocs/VinodDocs
-  console.log('1111');
+  console.log("1111");
   console.log(fs.readFileSync("README.md", "utf8"));
-  console.log('2222');
-
+  console.log("2222");
 };
