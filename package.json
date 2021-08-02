@@ -5,17 +5,18 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
-    "pack": "ncc build",
+    "pack": "tsc && ncc build lib/index.js -o dist",
     "test": "jest"
   },
   "author": "Jeremy Shore",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.3",
-    "firebase-admin": "^8.10.0"
+    "firebase-admin": "^8.10.0",
+    "ncc": "^0.3.6"
   },
   "devDependencies": {
-    "typescript": "^3.8.3",
-    "jest": "^25.1.0"
+    "jest": "^25.1.0",
+    "typescript": "^3.8.3"
   }
 }

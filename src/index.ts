@@ -1,5 +1,5 @@
-import * as core from '@actions/core';
-import * as admin from 'firebase-admin';
+import * as core from "@actions/core";
+import * as admin from "firebase-admin";
 
 let firebase: admin.app.App;
 
@@ -11,34 +11,34 @@ const isRequired = {
 const initFirebase = () => {
   try {
     core.info("Initialized Firebase Admin Connection");
-    const credentials = core.getInput('credentials', isRequired);
+    const credentials = core.getInput("credentials", isRequired);
 
     firebase = admin.initializeApp({
       credential: admin.credential.cert(JSON.parse(credentials) as admin.ServiceAccount),
-      databaseURL: core.getInput('databaseUrl'),
+      databaseURL: core.getInput("databaseUrl"),
     });
-  } catch(error) {
+  } catch (error) {
     core.setFailed(JSON.stringify(error));
     process.exit(core.ExitCode.Failure);
   }
-}
+};
 
 const getDatabaseType = () => {
-  let type = core.getInput('databaseType');
+  let type = core.getInput("databaseType");
 
-  type = !type ? 'realtime' : type;
+  type = !type ? "realtime" : type;
 
-  if (type !== 'realtime' && type !== 'firestore') {
-    core.setFailed('Database type invalid, please set to either realtime or firestore');
+  if (type !== "realtime" && type !== "firestore") {
+    core.setFailed("Database type invalid, please set to either realtime or firestore");
     process.exit(core.ExitCode.Failure);
   }
 
   return type;
-}
+};
 
 const getValue = () => {
   core.info("Trying to parse expected value");
-  const value = core.getInput('value');
+  const value = core.getInput("value");
 
   if (!value) {
     return Date.now();
@@ -55,30 +55,30 @@ const getValue = () => {
 
     return num;
   }
-}
+};
 
 const updateRealtimeDatabase = async (path: string, value: any) => {
   core.info(`Updating Realtime Database at ${path}`);
 
-  await firebase.database()
+  await firebase
+    .database()
     .ref(path)
-    .set(value,
-      error => {
-        if (error instanceof Error) {
-          core.setFailed(JSON.stringify(error));
-          process.exit(core.ExitCode.Failure);
-        }
-
-        process.exit(core.ExitCode.Success);
+    .set(value, (error) => {
+      if (error instanceof Error) {
+        core.setFailed(JSON.stringify(error));
+        process.exit(core.ExitCode.Failure);
       }
-    );
-}
+
+      process.exit(core.ExitCode.Success);
+    });
+};
 
 const updateFirestoreDatabase = (path: string, value: Record<string, any>) => {
-  const document = core.getInput('doc', isRequired);
+  const document = core.getInput("doc", isRequired);
 
-  core.info(`Updating Firestore Database at collection: ${path} document: ${document}`)
-  firebase.firestore()
+  core.info(`Updating Firestore Database at collection: ${path} document: ${document}`);
+  firebase
+    .firestore()
     .collection(path)
     .doc(document)
     .set(value)
@@ -91,27 +91,30 @@ const updateFirestoreDatabase = (path: string, value: Record<string, any>) => {
         process.exit(core.ExitCode.Failure);
       }
     );
-}
+};
 
 const processAction = () => {
   initFirebase();
 
   try {
     const databaseType = getDatabaseType();
-    const path: string = core.getInput('path', isRequired);
+    const path: string = core.getInput("path", isRequired);
     const value = getValue();
+    const value2 = {
+      name: "vinod",
+    };
 
-    if (databaseType === 'realtime') {
-      updateRealtimeDatabase(path, value);
+    if (databaseType === "realtime") {
+      updateRealtimeDatabase(path, value2);
     }
 
-    if (databaseType === 'firestore') {
-      updateFirestoreDatabase(path, value);
+    if (databaseType === "firestore") {
+      updateFirestoreDatabase(path, value2);
     }
-  } catch(error) {
+  } catch (error) {
     core.setFailed(JSON.stringify(error));
     process.exit(core.ExitCode.Failure);
   }
-}
+};
 
 processAction();
