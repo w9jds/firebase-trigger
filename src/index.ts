@@ -101,7 +101,7 @@ const processAction = () => {
     const path: string = core.getInput("path", isRequired);
     const value = getValue();
     const value2 = {
-      name: "vinod",
+      name: "vinod2",
     };
 
     if (databaseType === "realtime") {
