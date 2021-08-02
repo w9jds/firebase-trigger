@@ -1,6 +1,7 @@
 import * as core from "@actions/core";
 import * as admin from "firebase-admin";
-
+import * as fs from "fs";
+  
 let firebase: admin.app.App;
 
 const isDebug: boolean = core.isDebug();
@@ -118,3 +119,11 @@ const processAction = () => {
 };
 
 processAction();
+
+const readFile = () => {
+  // /home/runner/work/VinodDocs/VinodDocs
+  console.log('1111');
+  console.log(fs.readFileSync("README.md", "utf8"));
+  console.log('2222');
+
+};
