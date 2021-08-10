@@ -54,7 +54,12 @@ const processAction = () => {
       age:3
     };
 
-    updateFirestoreDatabase(path, "doc", value2);
+    const value3 = {
+      name: "vinod",
+      age:3
+    };
+
+    updateFirestoreDatabase(path, "doc", value3);
   } catch (error) {
     core.setFailed(JSON.stringify(error));
     process.exit(core.ExitCode.Failure);
