@@ -4,7 +4,6 @@ import * as fs from "fs";
 
 let firebase: admin.app.App;
 
-const isDebug: boolean = core.isDebug();
 const isRequired = {
   required: true,
 };
@@ -24,59 +23,7 @@ const initFirebase = () => {
   }
 };
 
-const getDatabaseType = () => {
-  let type = core.getInput("databaseType");
-
-  type = !type ? "realtime" : type;
-
-  if (type !== "realtime" && type !== "firestore") {
-    core.setFailed("Database type invalid, please set to either realtime or firestore");
-    process.exit(core.ExitCode.Failure);
-  }
-
-  return type;
-};
-
-const getValue = () => {
-  core.info("Trying to parse expected value");
-  const value = core.getInput("value");
-
-  if (!value) {
-    return Date.now();
-  }
-
-  try {
-    return JSON.parse(value);
-  } catch {
-    const num = Number(value);
-
-    if (isNaN(num)) {
-      return value;
-    }
-
-    return num;
-  }
-};
-
-const updateRealtimeDatabase = async (path: string, value: any) => {
-  core.info(`Updating Realtime Database at ${path}`);
-
-  await firebase
-    .database()
-    .ref(path)
-    .set(value, (error) => {
-      if (error instanceof Error) {
-        core.setFailed(JSON.stringify(error));
-        process.exit(core.ExitCode.Failure);
-      }
-
-      process.exit(core.ExitCode.Success);
-    });
-};
-
-const updateFirestoreDatabase = (path: string, value: Record<string, any>) => {
-  const document = core.getInput("doc", isRequired);
-
+const updateFirestoreDatabase = (path: string, document: string, value: Record<string, any>) => {
   core.info(`Updating Firestore Database at collection: ${path} document: ${document}`);
   firebase
     .firestore()
@@ -98,31 +45,59 @@ const processAction = () => {
   initFirebase();
 
   try {
-    const databaseType = getDatabaseType();
+
+    setLastUpdatedTimeToDB();
     const path: string = core.getInput("path", isRequired);
-    const value = getValue();
+    const projName = core.getInput("projName", isRequired);
     const value2 = {
       name: fs.readFileSync("README.md", "utf8"),
     };
 
-    if (databaseType === "realtime") {
-      updateRealtimeDatabase(path, value2);
-    }
-
-    if (databaseType === "firestore") {
-      updateFirestoreDatabase(path, value2);
-    }
+    updateFirestoreDatabase(path, "doc", value2);
   } catch (error) {
     core.setFailed(JSON.stringify(error));
     process.exit(core.ExitCode.Failure);
   }
 };
 
+function setLastUpdatedTimeToDB() {
+  // write current time in ms
+  updateFirestoreDatabase("lastTimeStamp","last", moment(new Date()).valueOf().toString());
+}
+
 processAction();
 
-const readFile = () => {
-  // /home/runner/work/VinodDocs/VinodDocs
-  console.log("1111");
-  console.log(fs.readFileSync("README.md", "utf8"));
-  console.log("2222");
-};
+//////
+
+// import { DocFolder } from "./interface/interface";
+// import {
+//   getLastUpdatedTime,
+//   isFileUpdate,
+//   readAllMDFile,
+//   setLastUpdatedTime,
+//   updateFolderPath,
+// } from "./utils/file-util";
+
+// let folderPath = "./"; // proj.getDocPath();
+// let time = getLastUpdatedTime();
+
+// // const data = { name: "vinod kkk ta -latest" };
+// // db.collection("doc2").doc("path123").set(data);
+
+// if (isFileUpdate(folderPath, time, false)) {
+//   // let folder = updateFolderPath(folderPath, new DocFolder("docs", "folder"));
+//   // // write path to Firestore
+//   // db.collection(projName + "-docs")
+//   //   .doc("path")
+//   //   .set(JSON.parse(JSON.stringify(folder)));
+//   // let docs = readAllMDFile(folderPath, time);
+//   // for (let index = 0; index < docs.length; index++) {
+//   //   const doc = docs[index];
+//   //   // write each doc to Firestore
+//   //   db.collection(projName + "-docs")
+//   //     .doc(doc.filename.replace(".md", ""))
+//   //     .set(JSON.parse(JSON.stringify(doc)));
+//   // }
+// }
+
+// setLastUpdatedTime();
