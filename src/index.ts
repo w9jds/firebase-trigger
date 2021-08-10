@@ -46,7 +46,7 @@ const processAction = () => {
 
   try {
 
-    setLastUpdatedTimeToDB();
+    // setLastUpdatedTimeToDB();
     const path: string = core.getInput("path", isRequired);
     const projName = core.getInput("projName", isRequired);
     const value2 = {
@@ -61,10 +61,10 @@ const processAction = () => {
   }
 };
 
-function setLastUpdatedTimeToDB() {
-  // write current time in ms
-  updateFirestoreDatabase("lastTimeStamp","last", moment(new Date()).valueOf().toString());
-}
+// function setLastUpdatedTimeToDB() {
+//   // write current time in ms
+//   updateFirestoreDatabase("lastTimeStamp","last", moment(new Date()).valueOf().toString());
+// }
 
 processAction();
 
