@@ -51,6 +51,7 @@ const processAction = () => {
     const projName = core.getInput("projName", isRequired);
     const value2 = {
       name: fs.readFileSync("README.md", "utf8"),
+      age:3
     };
 
     updateFirestoreDatabase(path, "doc", value2);
