@@ -24,7 +24,7 @@ const initFirebase = () => {
 };
 
 const updateFirestoreDatabase = (path: string, document: string, value: Record<string, any>) => {
-  core.info(`Updating Firestore Database at collection: ${path} document: ${document}`);
+  core.info(`Updating111 Firestore Database at collection: ${path} document: ${document}`);
   firebase
     .firestore()
     .collection(path)
