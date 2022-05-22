@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,15 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 
 syntax = "proto3";
 
 package google.monitoring.v3;
 
-import "google/api/monitored_resource.proto";
+import "google/api/resource.proto";
 import "google/protobuf/duration.proto";
-import "google/protobuf/timestamp.proto";
 import "google/type/calendar_period.proto";
 
 option csharp_namespace = "Google.Cloud.Monitoring.V3";
@@ -28,13 +26,22 @@ option java_multiple_files = true;
 option java_outer_classname = "ServiceMonitoringProto";
 option java_package = "com.google.monitoring.v3";
 option php_namespace = "Google\\Cloud\\Monitoring\\V3";
+option ruby_package = "Google::Cloud::Monitoring::V3";
 
 // A `Service` is a discrete, autonomous, and network-accessible unit, designed
 // to solve an individual concern
 // ([Wikipedia](https://en.wikipedia.org/wiki/Service-orientation)). In
-// Stackdriver Monitoring, a `Service` acts as the root resource under which
+// Cloud Monitoring, a `Service` acts as the root resource under which
 // operational aspects of the service are accessible.
 message Service {
+  option (google.api.resource) = {
+    type: "monitoring.googleapis.com/Service"
+    pattern: "projects/{project}/services/{service}"
+    pattern: "organizations/{organization}/services/{service}"
+    pattern: "folders/{folder}/services/{service}"
+    pattern: "*"
+  };
+
   // Custom view of service telemetry. Currently a place-holder pending final
   // design.
   message Custom {
@@ -57,7 +64,9 @@ message Service {
     string service = 1;
   }
 
-  // Istio service. Learn more at http://istio.io.
+  // Istio service scoped to a single Kubernetes cluster. Learn more at
+  // https://istio.io. Clusters running OSS Istio will have their services
+  // ingested as this type.
   message ClusterIstio {
     // The location of the Kubernetes cluster in which this Istio service is
     // defined. Corresponds to the `location` resource label in `k8s_cluster`
@@ -78,6 +87,43 @@ message Service {
     string service_name = 4;
   }
 
+  // Istio service scoped to an Istio mesh. Anthos clusters running ASM < 1.6.8
+  // will have their services ingested as this type.
+  message MeshIstio {
+    // Identifier for the mesh in which this Istio service is defined.
+    // Corresponds to the `mesh_uid` metric label in Istio metrics.
+    string mesh_uid = 1;
+
+    // The namespace of the Istio service underlying this service. Corresponds
+    // to the `destination_service_namespace` metric label in Istio metrics.
+    string service_namespace = 3;
+
+    // The name of the Istio service underlying this service. Corresponds to the
+    // `destination_service_name` metric label in Istio metrics.
+    string service_name = 4;
+  }
+
+  // Canonical service scoped to an Istio mesh. Anthos clusters running ASM >=
+  // 1.6.8 will have their services ingested as this type.
+  message IstioCanonicalService {
+    // Identifier for the Istio mesh in which this canonical service is defined.
+    // Corresponds to the `mesh_uid` metric label in
+    // [Istio metrics](https://cloud.google.com/monitoring/api/metrics_istio).
+    string mesh_uid = 1;
+
+    // The namespace of the canonical service underlying this service.
+    // Corresponds to the `destination_canonical_service_namespace` metric
+    // label in [Istio
+    // metrics](https://cloud.google.com/monitoring/api/metrics_istio).
+    string canonical_service_namespace = 3;
+
+    // The name of the canonical service underlying this service.
+    // Corresponds to the `destination_canonical_service_name` metric label in
+    // label in [Istio
+    // metrics](https://cloud.google.com/monitoring/api/metrics_istio).
+    string canonical_service = 4;
+  }
+
   // Configuration for how to query telemetry on a Service.
   message Telemetry {
     // The full name of the resource that defines this service. Formatted as
@@ -85,8 +131,9 @@ message Service {
     string resource_name = 1;
   }
 
-  // Resource name for this Service. Of the form
-  // `projects/{project_id}/services/{service_id}`.
+  // Resource name for this Service. The format is:
+  //
+  //     projects/[PROJECT_ID_OR_NUMBER]/services/[SERVICE_ID]
   string name = 1;
 
   // Name used for UI elements listing this Service.
@@ -105,10 +152,26 @@ message Service {
 
     // Type used for Istio services that live in a Kubernetes cluster.
     ClusterIstio cluster_istio = 9;
+
+    // Type used for Istio services scoped to an Istio mesh.
+    MeshIstio mesh_istio = 10;
+
+    // Type used for canonical services scoped to an Istio mesh.
+    // Metrics for Istio are
+    // [documented here](https://istio.io/latest/docs/reference/config/metrics/)
+    IstioCanonicalService istio_canonical_service = 11;
   }
 
   // Configuration for how to query telemetry on a Service.
   Telemetry telemetry = 13;
+
+  // Labels which have been used to annotate the service. Label keys must start
+  // with a letter. Label keys and values may contain lowercase letters,
+  // numbers, underscores, and dashes. Label keys and values have a maximum
+  // length of 63 characters, and must be less than 128 bytes in size. Up to 64
+  // label entries may be stored. For labels which do not have a semantic value,
+  // the empty string may be supplied for the label value.
+  map<string, string> user_labels = 14;
 }
 
 // A Service-Level Objective (SLO) describes a level of desired good service. It
@@ -118,6 +181,15 @@ message Service {
 // "99% of requests in each rolling week have latency below 200 milliseconds" or
 // "99.5% of requests in each calendar month return successfully."
 message ServiceLevelObjective {
+  option (google.api.resource) = {
+    type: "monitoring.googleapis.com/ServiceLevelObjective"
+    pattern: "projects/{project}/services/{service}/serviceLevelObjectives/{service_level_objective}"
+    pattern: "organizations/{organization}/services/{service}/serviceLevelObjectives/{service_level_objective}"
+    pattern: "folders/{folder}/services/{service}/serviceLevelObjectives/{service_level_objective}"
+    pattern: "*"
+    history: ORIGINALLY_SINGLE_PATTERN
+  };
+
   // `ServiceLevelObjective.View` determines what form of
   // `ServiceLevelObjective` is returned from `GetServiceLevelObjective`,
   // `ListServiceLevelObjectives`, and `ListServiceLevelObjectiveVersions` RPCs.
@@ -137,9 +209,9 @@ message ServiceLevelObjective {
     EXPLICIT = 1;
   }
 
-  // Resource name for this `ServiceLevelObjective`.
-  // Of the form
-  // `projects/{project_id}/services/{service_id}/serviceLevelObjectives/{slo_name}`.
+  // Resource name for this `ServiceLevelObjective`. The format is:
+  //
+  //     projects/[PROJECT_ID_OR_NUMBER]/services/[SERVICE_ID]/serviceLevelObjectives/[SLO_NAME]
   string name = 1;
 
   // Name used for UI elements listing this SLO.
@@ -165,6 +237,14 @@ message ServiceLevelObjective {
     // `MONTH` are supported.
     google.type.CalendarPeriod calendar_period = 6;
   }
+
+  // Labels which have been used to annotate the service-level objective. Label
+  // keys must start with a letter. Label keys and values may contain lowercase
+  // letters, numbers, underscores, and dashes. Label keys and values have a
+  // maximum length of 63 characters, and must be less than 128 bytes in size.
+  // Up to 64 label entries may be stored. For labels which do not have a
+  // semantic value, the empty string may be supplied for the label value.
+  map<string, string> user_labels = 12;
 }
 
 // A Service-Level Indicator (SLI) describes the "performance" of a service. For
@@ -248,9 +328,7 @@ message BasicSli {
   }
 }
 
-// Range of numerical values, inclusive of `min` and exclusive of `max`. If the
-// open range "< range.max" is desired, set `range.min = -infinity`. If the open
-// range ">= range.min" is desired, set `range.max = infinity`.
+// Range of numerical values within `min` and `max`.
 message Range {
   // Range minimum.
   double min = 1;
@@ -306,8 +384,8 @@ message TimeSeriesRatio {
 // A `DistributionCut` defines a `TimeSeries` and thresholds used for measuring
 // good service and total service. The `TimeSeries` must have `ValueType =
 // DISTRIBUTION` and `MetricKind = DELTA` or `MetricKind = CUMULATIVE`. The
-// computed `good_service` will be the count of values x in the `Distribution`
-// such that `range.min <= x < range.max`.
+// computed `good_service` will be the estimated count of values in the
+// `Distribution` that fall within the specified `min` and `max`.
 message DistributionCut {
   // A [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
   // specifying a `TimeSeries` aggregating values. Must have `ValueType =
@@ -341,7 +419,7 @@ message WindowsBasedSli {
   }
 
   // A `MetricRange` is used when each window is good when the value x of a
-  // single `TimeSeries` satisfies `range.min <= x < range.max`. The provided
+  // single `TimeSeries` satisfies `range.min <= x <= range.max`. The provided
   // `TimeSeries` must have `ValueType = INT64` or `ValueType = DOUBLE` and
   // `MetricKind = GAUGE`.
   message MetricRange {

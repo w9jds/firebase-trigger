@@ -27,7 +27,7 @@
     "firebase-admin": "^10.2.0"
   },
   "devDependencies": {
-    "typescript": "^4.6.4",
-    "jest": "^28.1.0"
+    "jest": "^28.1.0",
+    "typescript": "^4.6.4"
   }
 }
