@@ -11,13 +11,16 @@ inputs:
   databaseType:
     description: Either `realtime` or `firestore`
     default: realtime
+    required: false
   path:
     description: Path to what you want to set in your database
     required: true
   doc:
     description: Document to set for firestore
+    required: false
   value:
     description: Value to be set
+    required: false
 branding:
   icon: 'activity'
   color: 'gray-dark'

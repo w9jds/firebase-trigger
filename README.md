@@ -20,7 +20,7 @@ Writes to a realtime database, and sets the lastRelease to a `Date.now()` timest
 ```yaml
 notify:
   runs-on: ubuntu-latest
-  name: Nofity
+  name: Notify
   needs: [build, deploy]
   steps:
     - name: Update latest version in realtime database
