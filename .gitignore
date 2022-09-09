@@ -105,6 +105,7 @@ typings/
 .tern-port
 
 # Build, Config, and Compile files
+.idea/
 .vscode/
 config/
 build/

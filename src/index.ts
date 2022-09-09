@@ -57,6 +57,11 @@ const getValue = () => {
   }
 }
 
+const getFirestoreMergeValue = () => {
+  const merge = core.getInput('merge');
+  return merge && merge === 'true';
+}
+
 const updateRealtimeDatabase = async (path: string, value: any) => {
   core.info(`Updating Realtime Database at ${path}`);
 
@@ -76,12 +81,13 @@ const updateRealtimeDatabase = async (path: string, value: any) => {
 
 const updateFirestoreDatabase = (path: string, value: Record<string, any>) => {
   const document = core.getInput('doc', isRequired);
-
-  core.info(`Updating Firestore Database at collection: ${path} document: ${document}`)
+  const shouldMerge = getFirestoreMergeValue()
+  
+  core.info(`Updating Firestore Database at collection: ${path} document: ${document} (merge: ${shouldMerge})`)
   firebase.firestore()
     .collection(path)
     .doc(document)
-    .set(value)
+    .set(value, {merge: shouldMerge})
     .then(
       () => {
         process.exit(core.ExitCode.Success);

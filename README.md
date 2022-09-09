@@ -12,6 +12,7 @@ I call it trigger because of what this allows you to do. Firebase has extensive 
 * `path` - **Required** Path to the field you want to modify. If you are using firestore, this is the collection path.
 * `doc` - **Required for Firestore** Document you want to modify. Uses set, so it will write/overwrite the whole file.
 * `value` - **Optional** Value you would like to set. Defaults to `Date.now()` timestamp. If you are using Firestore this MUST be a JSON Object.
+* `merge` - **Optional for Firestore** Choose whether to overwrite or merge the [Firestore set operation](https://firebase.google.com/docs/firestore/manage-data/add-data#set_a_document). Defaults to `false` and will overwrite document data.
 
 ## Usage
 
