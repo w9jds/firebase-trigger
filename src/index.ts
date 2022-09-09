@@ -57,9 +57,9 @@ const getValue = () => {
   }
 }
 
-const getFirestoreMergeValue = () => {
+const getFirestoreMergeValue = (): boolean => {
   const merge = core.getInput('merge');
-  return merge && merge === 'true';
+  return !!(merge && merge === 'true');
 }
 
 const updateRealtimeDatabase = async (path: string, value: any) => {

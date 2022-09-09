@@ -1,6 +1,6 @@
 {
   "name": "firebase-trigger",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Update firebase data when your build completes",
   "main": "lib/index.js",
   "scripts": {
@@ -24,6 +24,7 @@
   "homepage": "https://github.com/w9jds/firebase-trigger#readme",
   "dependencies": {
     "@actions/core": "^1.8.2",
+    "@types/node": "^18.7.16",
     "firebase-admin": "^10.2.0"
   },
   "devDependencies": {
