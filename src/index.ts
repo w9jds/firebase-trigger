@@ -49,12 +49,11 @@ const getValue = () => {
 
     for (const [objKey, objValue] of Object.entries(valueJsonParsed)) {
       if (typeof objValue === 'string' || objValue instanceof String) {
-        // is a string
         const updateValue = objValue.slice(objValue.indexOf('(')+1, -1)
 
-        if (objValue.startsWith('admin.firestore.FieldValue.arrayUnion(')) {
+        if (objValue.startsWith('arrayUnion(')) {
           valueJsonParsed[objKey] = admin.firestore.FieldValue.arrayUnion(updateValue);
-        } else if (objValue.startsWith('admin.firestore.FieldValue.arrayRemove(')) {
+        } else if (objValue.startsWith('arrayRemove(')) {
           valueJsonParsed[objKey] = admin.firestore.FieldValue.arrayRemove(updateValue);
         }
       }
