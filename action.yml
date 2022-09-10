@@ -21,6 +21,10 @@ inputs:
   value:
     description: Value to be set
     required: false
+  merge:
+    description: Overwrite or merge firestore set operation
+    default: 'false'
+    required: false
 branding:
   icon: 'activity'
   color: 'gray-dark'

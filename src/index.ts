@@ -45,7 +45,21 @@ const getValue = () => {
   }
 
   try {
-    return JSON.parse(value);
+    const valueJsonParsed = JSON.parse(value);
+
+    for (const [objKey, objValue] of Object.entries(valueJsonParsed)) {
+      if (typeof objValue === 'string' || objValue instanceof String) {
+        const updateValue = objValue.slice(objValue.indexOf('(')+1, -1)
+
+        if (objValue.startsWith('arrayUnion(')) {
+          valueJsonParsed[objKey] = admin.firestore.FieldValue.arrayUnion(updateValue);
+        } else if (objValue.startsWith('arrayRemove(')) {
+          valueJsonParsed[objKey] = admin.firestore.FieldValue.arrayRemove(updateValue);
+        }
+      }
+    }
+
+    return valueJsonParsed
   } catch {
     const num = Number(value);
 
@@ -55,6 +69,11 @@ const getValue = () => {
 
     return num;
   }
+}
+
+const getFirestoreMergeValue = (): boolean => {
+  const merge = core.getInput('merge');
+  return !!(merge && merge === 'true');
 }
 
 const updateRealtimeDatabase = async (path: string, value: any) => {
@@ -76,12 +95,15 @@ const updateRealtimeDatabase = async (path: string, value: any) => {
 
 const updateFirestoreDatabase = (path: string, value: Record<string, any>) => {
   const document = core.getInput('doc', isRequired);
+  const shouldMerge = getFirestoreMergeValue()
 
-  core.info(`Updating Firestore Database at collection: ${path} document: ${document}`)
+
+
+  core.info(`Updating Firestore Database at collection: ${path} document: ${document} (merge: ${shouldMerge})`)
   firebase.firestore()
     .collection(path)
     .doc(document)
-    .set(value)
+    .set(value, {merge: shouldMerge})
     .then(
       () => {
         process.exit(core.ExitCode.Success);
